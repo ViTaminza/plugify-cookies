@@ -1,0 +1,5 @@
+{
+	// The database connection of this plugin is read from configs/cookies/databases.cfg
+	// (section "cookies", see docs/PLUGIN_STANDARD.md section 4). This file keeps the
+	// non-database options of the plugin; there are none yet.
+}
