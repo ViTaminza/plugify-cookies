@@ -1,0 +1,157 @@
+{
+	"$schema": "https://raw.githubusercontent.com/untrustedmodders/plugify/refs/heads/main/schemas/plugin.schema.json",
+	"version": "${COOKIES_VERSION}",
+	"name": "cookies",
+	"description": "Per-player persistent cookies (name/value strings keyed by SteamID64) stored in MySQL or SQLite. A port of the Metamod:Source plugin 'cookies' by Pisex; the table layout is kept compatible so both variants can share one database.",
+	"author": "Pisex, ported to Plugify",
+	"website": "https://github.com/untrustedmodders/plugify",
+	"license": "GPL-3.0",
+	"entry": "bin/cookies",
+	"platforms": [],
+	"language": "cpp",
+	"dependencies": [
+		{
+			"name": "s2sdk",
+			"constraints": ">=2.18.2"
+		}
+	],
+	"methods": [
+		{
+			"name": "SetClientCookie",
+			"funcName": "SetClientCookie",
+			"group": "Cookies",
+			"description": "Stores a cookie for a player. The value is cached immediately and written to the database asynchronously. May be called before the player's cookies have been loaded - the value is then queued and flushed once the load lands, and it is never overwritten by the pending load. A call for a slot without a player (nobody connected, or a bot) is rejected and logged: the value cannot be attributed to a player. Names longer than 255 bytes and values longer than 65535 bytes are rejected (logged).",
+			"paramTypes": [
+				{
+					"name": "playerSlot",
+					"type": "int32",
+					"ref": false,
+					"description": "Player slot (0..63). Values outside the range are ignored."
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"ref": false,
+					"description": "Cookie name (1..255 bytes)."
+				},
+				{
+					"name": "value",
+					"type": "string",
+					"ref": false,
+					"description": "Cookie value (0..65535 bytes)."
+				}
+			],
+			"retType": {
+				"type": "void"
+			}
+		},
+		{
+			"name": "GetClientCookie",
+			"funcName": "GetClientCookie",
+			"group": "Cookies",
+			"description": "Returns the cached value of a cookie. Returns an empty string when the cookie does not exist, the cookies of the player have not been loaded yet, or the slot is invalid - matching the behaviour of the original plugin.",
+			"paramTypes": [
+				{
+					"name": "playerSlot",
+					"type": "int32",
+					"ref": false,
+					"description": "Player slot (0..63)."
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"ref": false,
+					"description": "Cookie name."
+				}
+			],
+			"retType": {
+				"type": "string",
+				"description": "Cookie value or an empty string."
+			}
+		},
+		{
+			"name": "AreClientCookiesCached",
+			"funcName": "AreClientCookiesCached",
+			"group": "Cookies",
+			"description": "Returns true once the cookies of the player have been loaded from the database (or the load failed - the callback is still fired).",
+			"paramTypes": [
+				{
+					"name": "playerSlot",
+					"type": "int32",
+					"ref": false,
+					"description": "Player slot (0..63)."
+				}
+			],
+			"retType": {
+				"type": "bool",
+				"description": "Whether the client's cookies are cached."
+			}
+		},
+		{
+			"name": "OnClientCookiesCached_Register",
+			"funcName": "OnClientCookiesCached_Register",
+			"group": "Callbacks",
+			"description": "Registers a callback that is invoked on the game thread once a client's cookies have been loaded from the database (the equivalent of the original HookClientCookieLoaded). Duplicate registrations of the same function are ignored.",
+			"paramTypes": [
+				{
+					"name": "callback",
+					"type": "function",
+					"ref": false,
+					"prototype": {
+						"name": "ClientCookiesCachedCallback",
+						"funcName": "ClientCookiesCachedCallback",
+						"description": "Invoked when the cookies of a player slot became available.",
+						"paramTypes": [
+							{
+								"name": "playerSlot",
+								"type": "int32",
+								"ref": false,
+								"description": "Slot of the client whose cookies were loaded."
+							}
+						],
+						"retType": {
+							"type": "void"
+						}
+					},
+					"description": "Function to invoke."
+				}
+			],
+			"retType": {
+				"type": "void"
+			}
+		},
+		{
+			"name": "OnClientCookiesCached_Unregister",
+			"funcName": "OnClientCookiesCached_Unregister",
+			"group": "Callbacks",
+			"description": "Removes a callback previously passed to OnClientCookiesCached_Register. Safe to call from inside the callback itself.",
+			"paramTypes": [
+				{
+					"name": "callback",
+					"type": "function",
+					"ref": false,
+					"prototype": {
+						"name": "ClientCookiesCachedCallback",
+						"funcName": "ClientCookiesCachedCallback",
+						"description": "Invoked when the cookies of a player slot became available.",
+						"paramTypes": [
+							{
+								"name": "playerSlot",
+								"type": "int32",
+								"ref": false,
+								"description": "Slot of the client whose cookies were loaded."
+							}
+						],
+						"retType": {
+							"type": "void"
+						}
+					},
+					"description": "Function to remove."
+				}
+			],
+			"retType": {
+				"type": "void"
+			}
+		}
+	]
+}
